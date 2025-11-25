@@ -1,0 +1,110 @@
+{% extends "scanner/base.html" %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+
+<div class="text-center mb-4">
+  <h1 class="fw-bold text-primary">OWASP ZAP Web Scanner</h1>
+  <p class="text-muted">Analyse automatique des vulnérabilités OWASP Top 10</p>
+</div>
+
+<div class="card shadow-sm mx-auto" style="max-width: 700px;">
+  <div class="card-body">
+
+    <form method="post">
+      {% csrf_token %}
+
+      <!-- 🔹 Section cible -->
+      <h5 class="fw-bold text-primary mb-3">🎯 Cible</h5>
+      <div class="mb-3">
+        {{ form.target.label_tag }}
+        {{ form.target }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.max_pages.label_tag }}
+        {{ form.max_pages }}
+      </div>
+
+      <hr>
+
+      <!-- 🔹 Section options OWASP -->
+      <h5 class="fw-bold text-primary mb-3">🛠️ Options d'analyse OWASP</h5>
+
+      <div class="form-check"> {{ form.selenium }} {{ form.selenium.label_tag }} </div>
+      <div class="form-check"> {{ form.active_csrf }} {{ form.active_csrf.label_tag }} </div>
+      <div class="form-check"> {{ form.broken_auth }} {{ form.broken_auth.label_tag }} </div>
+      <div class="form-check"> {{ form.idor }} {{ form.idor.label_tag }} </div>
+
+      <hr>
+
+      <!-- 🔹 Section OWASP ZAP -->
+      <h5 class="fw-bold text-primary mb-3">🕷️ Intégration OWASP ZAP</h5>
+
+      <div class="form-check mb-3">
+        {{ form.use_zap }} {{ form.use_zap.label_tag }}
+      </div>
+
+      <!-- 🔻 Zone ZAP affichée uniquement si activée -->
+      <div id="zap-options" style="display: none;">
+
+        <div class="mb-3">
+          {{ form.zap_apikey.label_tag }}
+          {{ form.zap_apikey }}
+        </div>
+
+        <div class="mb-3">
+          {{ form.zap_host.label_tag }}
+          {{ form.zap_host }}
+        </div>
+
+        <div class="mb-3">
+          {{ form.zap_port.label_tag }}
+          {{ form.zap_port }}
+        </div>
+
+        <div class="form-check mb-3">
+          {{ form.use_active_zap }} {{ form.use_active_zap.label_tag }}
+        </div>
+
+      </div>
+
+      <hr>
+
+      <!-- 🔹 Légal -->
+      <div class="form-check mb-3">
+        {{ form.confirm_legal }} {{ form.confirm_legal.label_tag }}
+      </div>
+
+      <div class="text-center mt-3">
+        <button type="submit" class="btn btn-primary w-100">
+          🚀 Lancer le scan
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<p class="text-center mt-3 text-danger small">
+  ⚠️ N'analyse que les sites dont tu as l’autorisation.
+</p>
+
+<!-- 🔻 Script pour afficher/masquer les options ZAP -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const zapCheckbox = document.getElementById("id_use_zap");
+  const zapOptions = document.getElementById("zap-options");
+
+  function toggleZapOptions() {
+    zapOptions.style.display = zapCheckbox.checked ? "block" : "none";
+  }
+
+  zapCheckbox.addEventListener("change", toggleZapOptions);
+  toggleZapOptions(); // init
+});
+</script>
+
+{% endblock %}

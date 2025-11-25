@@ -1,0 +1,46 @@
+# --- FICHIERS ZAP à ignorer ---
+reports/
+export/
+session/
+wrk/
+zap/
+*.session
+*.log
+*.tmp
+*.db
+*.zip
+*.tar
+*.gz
+
+# --- Fichiers Python ---
+__pycache__/
+*.pyc
+*.pyo
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+
+
+# ZAP heavy folders
+reports/
+results/
+session/
+sessions/
+zap/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+
+# Env
+env/
+venv/
+.env
+
+# Django
+db.sqlite3
+staticfiles/
+media/

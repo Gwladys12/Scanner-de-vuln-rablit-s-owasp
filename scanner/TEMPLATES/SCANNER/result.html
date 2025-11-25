@@ -1,0 +1,140 @@
+{% extends "scanner/base.html" %}
+{% block title %}Résultats du scan{% endblock %}
+
+{% block content %}
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="text-success mb-3">✅ Analyse terminée</h2>
+
+    <p><strong>ID du scan :</strong> {{ result.run_id }}</p>
+    <p><strong>Rapport script local :</strong> {{ result.output_path }}</p>
+    <p><strong>Logs :</strong> {{ result.log_file }}</p>
+
+    <hr>
+
+    <!-- 🔹 Résultats SCRIPT LOCAL -->
+    <h4 class="text-primary mt-4">📘 Résumé du script local</h4>
+
+    {% if result.summary.vulnerabilities %}
+      <table class="table table-bordered mt-3">
+        <thead class="table-light">
+          <tr>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Criticité</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for vuln in result.summary.vulnerabilities %}
+          <tr>
+            <td>{{ vuln.type }}</td>
+            <td>{{ vuln.description }}</td>
+            <td>
+              {% if vuln.severity == "High" %}
+                <span class="badge bg-danger">Haute</span>
+              {% elif vuln.severity == "Medium" %}
+                <span class="badge bg-warning text-dark">Moyenne</span>
+              {% else %}
+                <span class="badge bg-success">Faible</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-muted">Aucune vulnérabilité détectée 🎉</p>
+    {% endif %}
+
+    <!-- Export -->
+    <div class="mt-4">
+      <h5 class="text-secondary">📤 Export du rapport</h5>
+      <a href="{% url 'export_report' result.run_id 'pdf' %}" class="btn btn-danger btn-sm">PDF</a>
+      <a href="{% url 'export_report' result.run_id 'html' %}" class="btn btn-primary btn-sm">HTML</a>
+      <a href="{% url 'export_report' result.run_id 'docx' %}" class="btn btn-info btn-sm">Word</a>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- 🔥 SECTION OWASP ZAP -->
+<!-- ====================================================== -->
+
+{% if result.zap_error %}
+<div class="alert alert-danger">
+  <strong>Erreur ZAP :</strong> {{ result.zap_error }}
+</div>
+{% endif %}
+
+{% if result.zap_result %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h3 class="text-warning">🕷️ Résultats OWASP ZAP</h3>
+
+    <hr>
+
+    <!-- 🔹 Résumé ZAP -->
+    <h5 class="fw-bold">📊 Résumé des alertes ZAP</h5>
+    <ul>
+      <li><strong>High :</strong> {{ result.zap_result.summary.high }}</li>
+      <li><strong>Medium :</strong> {{ result.zap_result.summary.medium }}</li>
+      <li><strong>Low :</strong> {{ result.zap_result.summary.low }}</li>
+      <li><strong>Info :</strong> {{ result.zap_result.summary.info }}</li>
+    </ul>
+
+    <hr>
+
+    <!-- 🔹 Liens vers les rapports ZAP -->
+    <h5 class="fw-bold">📁 Rapports ZAP générés</h5>
+    <p>
+      <a href="/{{ result.zap_result.paths.html }}" class="btn btn-primary btn-sm" target="_blank">📄 Rapport HTML</a>
+      <a href="/{{ result.zap_result.paths.json }}" class="btn btn-dark btn-sm" target="_blank">🧾 Rapport JSON</a>
+    </p>
+
+    <hr>
+
+    <!-- 🔹 Tableau des alertes ZAP -->
+    <h5 class="fw-bold">🚨 Liste des alertes ZAP</h5>
+
+    {% if result.zap_result.alerts %}
+      <table class="table table-striped table-bordered mt-3">
+        <thead class="table-light">
+          <tr>
+            <th>Nom</th>
+            <th>Risques</th>
+            <th>Description</th>
+            <th>URL</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for alert in result.zap_result.alerts %}
+          <tr>
+            <td>{{ alert.alert }}</td>
+            <td>
+              {% if alert.risk == "High" %}
+                <span class="badge bg-danger">High</span>
+              {% elif alert.risk == "Medium" %}
+                <span class="badge bg-warning text-dark">Medium</span>
+              {% elif alert.risk == "Low" %}
+                <span class="badge bg-success">Low</span>
+              {% else %}
+                <span class="badge bg-info">Info</span>
+              {% endif %}
+            </td>
+            <td>{{ alert.description }}</td>
+            <td>{{ alert.url }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-muted">Aucune alerte ZAP 👍</p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<a href="/" class="btn btn-secondary mt-3">↩️ Retour</a>
+
+{% endblock %}
